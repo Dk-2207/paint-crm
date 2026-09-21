@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Environment variables (NEVER commit these — they'll contain DB passwords, secrets)
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Editor/OS
+.vscode/
+.DS_Store
+
+# Prisma
+*.db
