@@ -10,7 +10,6 @@ export class InvoicesService {
   async create(createInvoiceDto: CreateInvoiceDto) {
     const { customerId, items } = createInvoiceDto;
 
-    // Fetch real, current prices from the database — never trust client-sent prices
     const products = await this.prisma.product.findMany({
       where: { id: { in: items.map((i) => i.productId) } },
     });
@@ -30,7 +29,7 @@ export class InvoicesService {
       };
     });
 
-    const tax = subtotal * 0.18; // 18% GST — adjust later if needed
+    const tax = subtotal * 0.18;
     const total = subtotal + tax;
 
     return this.prisma.invoice.create({
@@ -43,32 +42,44 @@ export class InvoicesService {
           create: itemsData,
         },
       },
-      include: { items: true },
+      include: {
+        items: { include: { product: true } },
+        customer: true,
+      },
     });
   }
 
   findAll() {
     return this.prisma.invoice.findMany({
-      include: { items: true, customer: true },
+      include: {
+        customer: true,
+        items: {
+          include: { product: true },
+        },
+      },
     });
   }
 
   findOne(id: number) {
     return this.prisma.invoice.findUnique({
       where: { id },
-      include: { items: true, customer: true },
+      include: {
+        customer: true,
+        items: {
+          include: { product: true },
+        },
+      },
     });
   }
 
-update(id: number, updateInvoiceDto: UpdateInvoiceDto) {
-  return this.prisma.invoice.update({
-    where: { id },
-    data: {
-      status: updateInvoiceDto.status,
-    },
-  });
-} 
-
+  update(id: number, updateInvoiceDto: UpdateInvoiceDto) {
+    return this.prisma.invoice.update({
+      where: { id },
+      data: {
+        status: updateInvoiceDto.status,
+      },
+    });
+  }
 
   remove(id: number) {
     return this.prisma.invoice.delete({
