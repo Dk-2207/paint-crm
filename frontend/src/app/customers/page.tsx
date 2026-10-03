@@ -15,14 +15,16 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("http://localhost:4000/customers")
-      .then((res) => res.json())
-      .then((data) => {
-        setCustomers(data);
-        setLoading(false);
-      });
-  }, []);
+ useEffect(() => {
+  fetch("http://localhost:4000/customers", {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      setCustomers(Array.isArray(data) ? data : []);
+      setLoading(false);
+    });
+}, []);
 
   if (loading) return <p className="p-8">Loading...</p>;
 

@@ -23,22 +23,31 @@ export default function InvoicesPage() {
   const [quantity, setQuantity] = useState("1");
 
   const loadInvoices = () => {
-    fetch("http://localhost:4000/invoices")
+    fetch("http://localhost:4000/invoices", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
       .then((res) => res.json())
-      .then(setInvoices);
+      .then((data) => setInvoices(Array.isArray(data) ? data : []));
   };
 
   useEffect(() => {
     loadInvoices();
-    fetch("http://localhost:4000/customers").then((r) => r.json()).then(setCustomers);
-    fetch("http://localhost:4000/products").then((r) => r.json()).then(setProducts);
+    fetch("http://localhost:4000/customers", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    }).then((r) => r.json()).then((data) => setCustomers(Array.isArray(data) ? data : []));
+    fetch("http://localhost:4000/products", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    }).then((r) => r.json()).then((data) => setProducts(Array.isArray(data) ? data : []));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await fetch("http://localhost:4000/invoices", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
       body: JSON.stringify({
         customerId: parseInt(customerId),
         items: [{ productId: parseInt(productId), quantity: parseInt(quantity) }],

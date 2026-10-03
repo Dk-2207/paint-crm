@@ -17,12 +17,14 @@ export default function ProductsPage() {
   const [form, setForm] = useState({ name: "", brand: "", type: "", size: "", pricePerUnit: "" });
 
   const loadProducts = () => {
-    fetch("http://localhost:4000/products")
+   fetch("http://localhost:4000/products", {
+  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+})
       .then((res) => res.json())
       .then((data) => {
-        setProducts(data);
-        setLoading(false);
-      });
+         setProducts(Array.isArray(data) ? data : []);
+         setLoading(false);
+      }); 
   };
 
   useEffect(() => {
@@ -32,10 +34,13 @@ export default function ProductsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await fetch("http://localhost:4000/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, pricePerUnit: parseFloat(form.pricePerUnit) }),
-    });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+  body: JSON.stringify({ ...form, pricePerUnit: parseFloat(form.pricePerUnit) }),
+});
     setForm({ name: "", brand: "", type: "", size: "", pricePerUnit: "" });
     loadProducts();
   };
